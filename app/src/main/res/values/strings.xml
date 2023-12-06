@@ -48,4 +48,9 @@
     <string name="home">Home</string>
     <string name="graph">Graph</string>
     <string name="alerts">Alerts</string>
+    <string name="temperature">"Temperature"</string>
+    <string name="humidity">"Humidity"</string>
+    <string name="on">ON</string>
+    <string name="off">OFF</string>
+    <string name="select_data_prompt">Select data to show</string>
 </resources>

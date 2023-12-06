@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ... other arrays ... -->
+
+    <string-array name="data_options">
+        <item>Show Both</item>
+        <item>Show Temperature</item>
+        <item>Show Humidity</item>
+    </string-array>
+</resources>
