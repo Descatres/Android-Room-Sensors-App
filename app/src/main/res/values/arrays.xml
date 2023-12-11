@@ -3,8 +3,8 @@
     <!-- ... other arrays ... -->
 
     <string-array name="data_options">
-        <item>Show Both</item>
-        <item>Show Temperature</item>
-        <item>Show Humidity</item>
+        <item>All</item>
+        <item>Temperature</item>
+        <item>Humidity</item>
     </string-array>
 </resources>

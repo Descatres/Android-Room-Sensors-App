@@ -4,87 +4,135 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Grey background for temperature and humidity -->
     <RelativeLayout
-        android:id="@+id/temperatureHumidityContainer"
+        android:id="@+id/borderContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:background="@drawable/rounded_background"
-        android:padding="16dp">
-
-        <!-- Temperature TextView -->
-        <TextView
-            android:id="@+id/textTemperature"
-            android:layout_width="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/border_background">
+        <!-- Grey background for temperature and humidity -->
+        <RelativeLayout
+            android:id="@+id/temperatureHumidityContainer"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/temperature"
-            android:textSize="48sp"
-            android:layout_centerHorizontal="true" />
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/rounded_background"
+            android:padding="16dp">
 
-        <!-- Realtime temp TextView -->
-        <TextView
-            android:id="@+id/realtimeTemperature"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/textTemperature"
-            android:layout_marginTop="12dp"
-            android:text="10ºC"
-            android:textSize="26sp"
-            android:layout_centerHorizontal="true" />
+            <!-- Temperature TextView -->
+            <TextView
+                android:id="@+id/textTemperature"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/temperature"
+                android:textSize="48sp"
+                android:layout_centerHorizontal="true" />
 
-        <!-- Humidity TextView -->
-        <TextView
-            android:id="@+id/textHumidity"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/realtimeTemperature"
-            android:layout_marginTop="16dp"
-            android:text="@string/humidity"
-            android:textSize="48sp"
-            android:layout_centerHorizontal="true" />
+            <!-- Realtime temp TextView -->
+            <TextView
+                android:id="@+id/realtimeTemperature"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/textTemperature"
+                android:layout_marginTop="12dp"
+                android:text="10ºC"
+                android:textSize="26sp"
+                android:layout_centerHorizontal="true" />
 
-        <!-- Realtime temp TextView -->
-        <TextView
-            android:id="@+id/realtimeHumidity"
-            android:layout_width="wrap_content"
+            <!-- Humidity TextView -->
+            <TextView
+                android:id="@+id/textHumidity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/realtimeTemperature"
+                android:layout_marginTop="16dp"
+                android:text="@string/humidity"
+                android:textSize="48sp"
+                android:layout_centerHorizontal="true" />
+
+            <!-- Realtime temp TextView -->
+            <TextView
+                android:id="@+id/realtimeHumidity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/textHumidity"
+                android:layout_marginTop="12dp"
+                android:text="10%"
+                android:textSize="26sp"
+                android:layout_centerHorizontal="true" />
+        </RelativeLayout>
+
+        <!-- Three Buttons to replace the Spinner -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/textHumidity"
-            android:layout_marginTop="12dp"
-            android:text="10%"
-            android:textSize="26sp"
-            android:layout_centerHorizontal="true" />
+            android:layout_below="@id/temperatureHumidityContainer"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <!-- Button 1 -->
+            <Button
+                android:id="@+id/btnOption1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:textColor="@android:color/black"
+                android:text="@string/all" />
+
+            <!-- Button 2 -->
+            <Button
+                android:id="@+id/btnOption2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:textColor="@android:color/black"
+                android:text="@string/temperature" />
+
+            <!-- Button 3 -->
+            <Button
+                android:id="@+id/btnOption3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:textColor="@android:color/black"
+                android:text="@string/humidity" />
+        </LinearLayout>
     </RelativeLayout>
 
-    <!-- Spinner to select what to show -->
-    <Spinner
-        android:id="@+id/spinnerShowData"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/temperatureHumidityContainer"
+    <ImageView
+        android:id="@+id/imageLightBulb"
+        android:layout_width="match_parent"
+        android:layout_height="225dp"
+        android:layout_below="@id/borderContainer"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="8dp"
-        android:background="@android:color/transparent"
-        android:entries="@array/data_options"
-        android:prompt="@string/select_data_prompt" />
+        android:layout_marginTop="48dp"
+        app:srcCompat="@drawable/light_off"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/lightoff" />
 
     <!-- Buttons to turn on and off LED -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/spinnerShowData"
+        android:layout_below="@id/imageLightBulb"
         android:orientation="horizontal"
-        android:layout_marginTop="16dp">
+        android:layout_marginTop="36dp">
 
         <!-- Button to turn on LED -->
         <Button
             android:id="@+id/btnTurnOn"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="40dp"
+            android:layout_weight="1.5"
+            android:layout_marginStart="56dp"
+            android:background="@android:color/transparent"
+            android:textColor="@android:color/black"
             android:text="@string/on" />
 
         <!-- Space between buttons -->
@@ -98,8 +146,10 @@
             android:id="@+id/btnTurnOff"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginEnd="40dp"
+            android:layout_weight="1.5"
+            android:layout_marginEnd="56dp"
+            android:background="@android:color/transparent"
+            android:textColor="@android:color/black"
             android:text="@string/off" />
     </LinearLayout>
 
