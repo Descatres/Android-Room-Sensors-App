@@ -190,8 +190,8 @@ public class HomeFragment extends Fragment {
 
     private void subscribeToTopics() {
         try {
-            String temperatureTopic = "temperature";
-            String humidityTopic = "humidity";
+            String temperatureTopic = "randomtemperaturetopic";
+            String humidityTopic = "randomhumiditytopic";
             int qos = 1;
 
             IMqttToken subToken1 = mqttAndroidClient.subscribe(temperatureTopic, qos);
@@ -234,8 +234,8 @@ public class HomeFragment extends Fragment {
 
     // Update UI based on the received MQTT message
     private void updateUI(String topic, String payload) {
-        String temperatureTopic = "temperature";
-        String humidityTopic = "humidity";
+        String temperatureTopic = "randomtemperaturetopic";
+        String humidityTopic = "randomhumiditytopic";
         Log.e("HomeFragment", "Topic: " + topic + ", Payload: " + payload);
         // Check the topic and update the corresponding UI element
         if (temperatureTopic.equals(topic)) {
@@ -250,8 +250,8 @@ public class HomeFragment extends Fragment {
 
     private void unsubscribeFromTopics() {
         try {
-            String temperatureTopic = "temperature";
-            String humidityTopic = "humidity";
+            String temperatureTopic = "randomtemperaturetopic";
+            String humidityTopic = "randomhumiditytopic";
 
             IMqttToken unsubToken1 = mqttAndroidClient.unsubscribe(temperatureTopic);
             unsubToken1.setActionCallback(new IMqttActionListener() {
