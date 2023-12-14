@@ -56,4 +56,8 @@
     <string name="all">All</string>
     <string name="lightoff">LightOff</string>
     <string name="connecting">Connecting...</string>
+    <string name="make_sure_min_max"><![CDATA[Make sure min < max]]></string>
+    <string name="max">Max</string>
+    <string name="min">Min</string>
+    <string name="here">Here</string>
 </resources>

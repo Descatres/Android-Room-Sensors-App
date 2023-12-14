@@ -190,7 +190,7 @@ void loop() {
       // const char* temperaturePayload = String(data.temperature, 2).c_str();
       // const char* humidityPayload = String(data.humidity, 1).c_str();
 
-      sprintf(strTemperature, "%.2f ºC", data.temperature);
+      sprintf(strTemperature, "%.2f", data.temperature);
       sprintf(strHumidity, "%.2f", data.humidity);
 
       // Print for debugging

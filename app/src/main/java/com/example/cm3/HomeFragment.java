@@ -102,7 +102,11 @@ public class HomeFragment extends Fragment {
         // update UI when new MQTT data is received
         mqttViewModel.getTemperature().observe(getViewLifecycleOwner(), temperature -> {
 //            Log.e("HomeFragment", "Temperature data changed: " + temperature);
-            realtimeTemperature.setText(temperature);
+            String temperatureString = temperature + "ºC";
+            if (temperature.equals("Connection Lost")) {
+                temperatureString = temperature;
+            }
+            realtimeTemperature.setText(temperatureString);
         });
 
         mqttViewModel.getHumidity().observe(getViewLifecycleOwner(), humidity -> {
@@ -131,14 +135,12 @@ public class HomeFragment extends Fragment {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
                     // Subscribe to MQTT
-                    // Log.e("MainActivity", "Connected to MQTT broker");
-//                    subscribeToTopics();
+                    // Log.e("HomeFragment", "Connected to MQTT broker");
                 }
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    // Log.e("MainActivity", "Failed to connect to MQTT broker");
-//                    unsubscribeFromTopics();
+                    // Log.e("HomeFragment", "Failed to connect to MQTT broker");
                 }
             });
         } catch (MqttException e) {
@@ -174,14 +176,14 @@ public class HomeFragment extends Fragment {
     }
 
     private void publishToLedTopic(String message) {
-        Log.e("HomeFragment", "Publishing message to LED topic: " + message);
+//        Log.e("HomeFragment", "Publishing message to LED topic: " + message);
         try {
             if (mqttAndroidClient != null && mqttAndroidClient.isConnected()) {
                 MqttMessage mqttMessage = new MqttMessage(message.getBytes());
                 mqttMessage.setQos(1); // Set the desired QoS level
 
                 mqttAndroidClient.publish(ledTopic, mqttMessage);
-                Log.e("HomeFragment", "Message published successfully.");
+//                Log.e("HomeFragment", "Message published successfully.");
             } else {
                 Log.e("HomeFragment", "MQTT client not connected");
             }
