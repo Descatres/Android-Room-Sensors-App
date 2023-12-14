@@ -145,8 +145,7 @@ public class AlertsFragment extends Fragment {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(requireContext());
         if (ActivityCompat.checkSelfPermission(requireContext(), android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             // TODO: call ActivityCompat#requestPermissions here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
             return;
         }
         if (title.equals("Temperature Alert")) {
