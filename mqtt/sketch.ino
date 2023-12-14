@@ -14,11 +14,11 @@
 LiquidCrystal_I2C LCD = LiquidCrystal_I2C(0x27, 16, 2);
 
 // Define random ID
-String ID_MQTT;
+String ID_MQTT = "esp32_mqtt";
 char *letters = "abcdefghijklmnopqrstuvwxyz0123456789";
 
 // Define MQTT Topics
-#define ON_OFF  "randomon_offtopic"
+#define ON_OFF  "randomonofftopic"
 #define HUMIDITY "randomhumiditytopic"
 #define TEMPERATURE "randomtemperaturetopic"
 
@@ -43,15 +43,20 @@ const int LED_PIN = 12;
 
 // Global variables
 WiFiClient espClient;
-PubSubClient MQTT(espClient); 
+PubSubClient MQTT(espClient);
 DHTesp dhtSensor;
 
 // Declarations
 void startWifi(void);
+
 void initMQTT(void);
+
 void callbackMQTT(char *topic, byte *payload, unsigned int length);
+
 void reconnectMQTT(void);
+
 void reconnectWiFi(void);
+
 void checkWiFIAndMQTT(void);
 
 
@@ -66,40 +71,35 @@ void initMQTT(void) {
   MQTT.setCallback(callbackMQTT);
 }
 
-// Callback from Android 
+// Callback from Android
 // --- Get the messages here
 void callbackMQTT(char *topic, byte *payload, unsigned int length) {
   String msg;
 
   // Convert payload to string
   for (int i = 0; i < length; i++) {
-    char c = (char)payload[i];
+    char c = (char) payload[i];
     msg += c;
   }
 
   Serial.printf("Topic: %s\n", topic);
   Serial.printf("Message: %s\n", msg, topic);
 
-  
-  if (msg.equals("on")) {
+
+  if (msg.equals("1")) {
     digitalWrite(LED_PIN, HIGH);
-  } else if (msg.equals("off")) {
+  }
+  if (msg.equals("0")) {
     digitalWrite(LED_PIN, LOW);
   }
-  
+
 }
 
 // Connects to the Broker with a specific random ID
 void reconnectMQTT(void) {
   while (!MQTT.connected()) {
-    ID_MQTT = "";
     Serial.print("* Starting connection with broker: ");
     Serial.println(BROKER_MQTT);
-
-    int i = 0;
-    for (i = 0; i < 10; i++) {
-      ID_MQTT = ID_MQTT + letters[random(0, 36)];
-    }
 
     if (MQTT.connect(ID_MQTT.c_str())) {
       Serial.print("* Connected to broker successfully with ID: ");
@@ -153,7 +153,8 @@ void setup() {
   LCD.print("Initializing...");
   LCD.setCursor(0, 1);
   LCD.print("Please wait...");
-  digitalWrite(LED_PIN, HIGH);
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, LOW);
 
   dhtSensor.setup(DHT_PIN, DHTesp::DHT22);
 
@@ -179,8 +180,12 @@ void loop() {
       LCD.setCursor(0, 1);
       LCD.print("Humidity: " + String(data.humidity, 1) + "%");
 
-    sprintf(strTemperature, "%.2f ºC", data.temperature);
-    sprintf(strHumidity, "%.2f", data.humidity);
+      // // Convert String to const char*
+      // const char* temperaturePayload = String(data.temperature, 2).c_str();
+      // const char* humidityPayload = String(data.humidity, 1).c_str();
+
+      sprintf(strTemperature, "%.2f ºC", data.temperature);
+      sprintf(strHumidity, "%.2f", data.humidity);
 
       // Print for debugging
       Serial.print("Temperature Payload: ");

@@ -21,8 +21,10 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 public class HomeFragment extends Fragment {
@@ -32,8 +34,7 @@ public class HomeFragment extends Fragment {
     private TextView textHumidity;
     private TextView realtimeHumidity;
     private ImageView imageLightBulb;
-
-    private final String ledTopic = "randomon_offtopic";
+    private String ledTopic = "randomonofftopic";
     private MqttAndroidClient mqttAndroidClient;
 
     @Override
@@ -84,7 +85,7 @@ public class HomeFragment extends Fragment {
             // Change the image to the "on" state
             imageLightBulb.setImageResource(R.drawable.light_on);
             // Publish the "on" message to the LED topic
-            publishToLedTopic("on");
+            publishToLedTopic("1");
         });
 
         // Find the "off" button and set a click listener
@@ -93,7 +94,7 @@ public class HomeFragment extends Fragment {
             // Change the image to the "off" state
             imageLightBulb.setImageResource(R.drawable.light_off);
             // Publish the "off" message to the LED topic
-            publishToLedTopic("off");
+            publishToLedTopic("0");
         });
 
         MqttViewModel mqttViewModel = new ViewModelProvider(requireActivity()).get(MqttViewModel.class);
@@ -107,6 +108,9 @@ public class HomeFragment extends Fragment {
         mqttViewModel.getHumidity().observe(getViewLifecycleOwner(), humidity -> {
 //            Log.e("HomeFragment", "Humidity data changed: " + humidity);
             String humidityString = humidity + " %";
+            if (humidity.equals("Connection Lost")) {
+                humidityString = humidity;
+            }
             realtimeHumidity.setText(humidityString);
         });
         return view;
@@ -170,19 +174,14 @@ public class HomeFragment extends Fragment {
     }
 
     private void publishToLedTopic(String message) {
-
         Log.e("HomeFragment", "Publishing message to LED topic: " + message);
         try {
-            // Check if the MQTT client is connected
             if (mqttAndroidClient != null && mqttAndroidClient.isConnected()) {
-                // Publish the message to the LED topic
-                mqttAndroidClient.publish(ledTopic, message.getBytes(), 0, false);
-                // Check if it worked
-                if (mqttAndroidClient.isConnected()) {
-                    Log.e("HomeFragment", "Message published to LED topic");
-                } else {
-                    Log.e("HomeFragment", "MQTT client not connected");
-                }
+                MqttMessage mqttMessage = new MqttMessage(message.getBytes());
+                mqttMessage.setQos(1); // Set the desired QoS level
+
+                mqttAndroidClient.publish(ledTopic, mqttMessage);
+                Log.e("HomeFragment", "Message published successfully.");
             } else {
                 Log.e("HomeFragment", "MQTT client not connected");
             }
