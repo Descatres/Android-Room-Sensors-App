@@ -54,7 +54,6 @@ public class AlertsFragment extends Fragment {
         editTextHumidityMin = view.findViewById(R.id.editTextHumidityMin);
         editTextHumidityMax = view.findViewById(R.id.editTextHumidityMax);
 
-        TextView textViewMinMaxMessage = view.findViewById(R.id.textViewMinMaxMessage);
         createNotificationChannel();
 
         // Observe changes in ViewModel data
