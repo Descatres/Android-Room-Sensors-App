@@ -18,9 +18,9 @@ String ID_MQTT;
 char *letters = "abcdefghijklmnopqrstuvwxyz0123456789";
 
 // Define MQTT Topics
-#define ON_OFF  "on_off"
-#define HUMIDITY "humidity"
-#define TEMPERATURE "temperature"
+#define ON_OFF  "randomon_offtopic"
+#define HUMIDITY "randomhumiditytopic"
+#define TEMPERATURE "randomtemperaturetopic"
 
 // Update every 1 seconds
 #define PUBLISH_DELAY 500
@@ -33,6 +33,9 @@ const char *PASSWORD = "";
 // Define MQTT Broker and PORT
 const char *BROKER_MQTT = "broker.hivemq.com";
 int BROKER_PORT = 1883;
+
+static char strTemperature[10] = {0};
+static char strHumidity[10] = {0};
 
 // Defined ports
 const int DHT_PIN = 15;
@@ -80,7 +83,7 @@ void callbackMQTT(char *topic, byte *payload, unsigned int length) {
   
   if (msg.equals("on")) {
     digitalWrite(LED_PIN, HIGH);
-  } else if (msg.equals("of")) {
+  } else if (msg.equals("off")) {
     digitalWrite(LED_PIN, LOW);
   }
   
@@ -150,6 +153,7 @@ void setup() {
   LCD.print("Initializing...");
   LCD.setCursor(0, 1);
   LCD.print("Please wait...");
+  digitalWrite(LED_PIN, HIGH);
 
   dhtSensor.setup(DHT_PIN, DHTesp::DHT22);
 
@@ -165,20 +169,31 @@ void loop() {
     checkWiFIAndMQTT();
 
     // Get data from sensor
-    TempAndHumidity  data = dhtSensor.getTempAndHumidity();
-    LCD.clear();
-    LCD.setCursor(0, 0);
-    LCD.print("Temp: " + String(data.temperature, 2) + "C");
-    LCD.setCursor(0, 1);
-    LCD.print("Humidity: " + String(data.humidity, 1) + "%");
+    TempAndHumidity data = dhtSensor.getTempAndHumidity();
 
-  // Convert String to const char*
-  const char* temperaturePayload = String(data.temperature, 2).c_str();
-  const char* humidityPayload = String(data.humidity, 1).c_str();
+    // Check if data is valid
+    if (!isnan(data.temperature) && !isnan(data.humidity)) {
+      LCD.clear();
+      LCD.setCursor(0, 0);
+      LCD.print("Temp: " + String(data.temperature, 2) + "C");
+      LCD.setCursor(0, 1);
+      LCD.print("Humidity: " + String(data.humidity, 1) + "%");
 
-  // Publish using the converted payloads
-  MQTT.publish(TEMPERATURE, temperaturePayload);
-  MQTT.publish(HUMIDITY, humidityPayload);
+    sprintf(strTemperature, "%.2f ºC", data.temperature);
+    sprintf(strHumidity, "%.2f", data.humidity);
+
+      // Print for debugging
+      Serial.print("Temperature Payload: ");
+      Serial.println(strTemperature);
+      Serial.print("Humidity Payload: ");
+      Serial.println(strHumidity);
+
+      // Publish using the converted payloads
+      MQTT.publish(TEMPERATURE, strTemperature);
+      MQTT.publish(HUMIDITY, strHumidity);
+    } else {
+      Serial.println("Error: Invalid data from DHT sensor");
+    }
 
     // MQTT Keep-alive loop
     MQTT.loop();

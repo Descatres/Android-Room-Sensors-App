@@ -33,6 +33,11 @@ public class HomeFragment extends Fragment {
 
     private MqttAndroidClient mqttAndroidClient;
 
+    private final String ledTopic = "randomon_offtopic";
+    private final String humidityTopic = "randomhumiditytopic";
+    private final String temperatureTopic = "randomtemperaturetopic";
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
@@ -114,7 +119,7 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void messageArrived(String topic, org.eclipse.paho.client.mqttv3.MqttMessage message) {
-                Log.e("HomeFragment", "Message arrived");
+                Log.e("HomeFragment", "Message arrived" + message.toString());
                 // Handle incoming message
                 String payload = new String(message.getPayload());
                 // Update UI based on the received message
@@ -190,8 +195,6 @@ public class HomeFragment extends Fragment {
 
     private void subscribeToTopics() {
         try {
-            String temperatureTopic = "randomtemperaturetopic";
-            String humidityTopic = "randomhumiditytopic";
             int qos = 1;
 
             IMqttToken subToken1 = mqttAndroidClient.subscribe(temperatureTopic, qos);
@@ -234,8 +237,6 @@ public class HomeFragment extends Fragment {
 
     // Update UI based on the received MQTT message
     private void updateUI(String topic, String payload) {
-        String temperatureTopic = "randomtemperaturetopic";
-        String humidityTopic = "randomhumiditytopic";
         Log.e("HomeFragment", "Topic: " + topic + ", Payload: " + payload);
         // Check the topic and update the corresponding UI element
         if (temperatureTopic.equals(topic)) {
@@ -243,15 +244,15 @@ public class HomeFragment extends Fragment {
             // Update temperature UI
             realtimeTemperature.setText(payload);
         } else if (humidityTopic.equals(topic)) {
+            Log.e("HomeFragment", "Humidity: " + payload);
             // Update humidity UI
-            realtimeHumidity.setText(payload);
+            String humidityString = payload + "%";
+            realtimeHumidity.setText(humidityString);
         }
     }
 
     private void unsubscribeFromTopics() {
         try {
-            String temperatureTopic = "randomtemperaturetopic";
-            String humidityTopic = "randomhumiditytopic";
 
             IMqttToken unsubToken1 = mqttAndroidClient.unsubscribe(temperatureTopic);
             unsubToken1.setActionCallback(new IMqttActionListener() {

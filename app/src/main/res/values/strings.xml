@@ -55,4 +55,5 @@
     <string name="select_data_prompt">Select data to show</string>
     <string name="all">All</string>
     <string name="lightoff">LightOff</string>
+    <string name="connecting">Connecting...</string>
 </resources>
