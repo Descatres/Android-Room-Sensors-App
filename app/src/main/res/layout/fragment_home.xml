@@ -15,7 +15,7 @@
             android:id="@+id/temperatureHumidityContainer"
             android:layout_width="match_parent"
             android:layout_height="272dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="16dp"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
             android:background="@drawable/rounded_background"
@@ -37,9 +37,9 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/textTemperature"
                 android:layout_marginTop="12dp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="20dp"
                 android:text="@string/connecting"
-                android:textSize="26sp"
+                android:textSize="24sp"
                 android:layout_centerHorizontal="true" />
 
             <!-- Humidity TextView -->
@@ -60,7 +60,7 @@
                 android:layout_below="@id/textHumidity"
                 android:layout_marginTop="12dp"
                 android:text="@string/connecting"
-                android:textSize="26sp"
+                android:textSize="24sp"
                 android:layout_centerHorizontal="true" />
         </RelativeLayout>
 
@@ -104,23 +104,11 @@
         </LinearLayout>
     </RelativeLayout>
 
-    <ImageView
-        android:id="@+id/imageLightBulb"
-        android:layout_width="match_parent"
-        android:layout_height="225dp"
-        android:layout_below="@id/borderContainer"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="48dp"
-        app:srcCompat="@drawable/light_off"
-        android:scaleType="fitCenter"
-        android:adjustViewBounds="true"
-        android:contentDescription="@string/lightoff" />
-
-    <!-- Buttons to turn on and off LED -->
     <LinearLayout
+        android:id="@+id/ledButtonsContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/imageLightBulb"
+        android:layout_below="@id/borderContainer"
         android:orientation="horizontal"
         android:layout_marginTop="36dp">
 
@@ -152,5 +140,20 @@
             android:textColor="@android:color/black"
             android:text="@string/off" />
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/imageLightBulb"
+        android:layout_width="match_parent"
+        android:layout_height="225dp"
+        android:layout_below="@id/ledButtonsContainer"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="36dp"
+        app:srcCompat="@drawable/light_off"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/lightoff" />
+
+    <!-- Buttons to turn on and off LED -->
+
 
 </RelativeLayout>

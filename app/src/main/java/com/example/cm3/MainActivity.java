@@ -25,7 +25,13 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 
+// TODO Guardar os dados de temperatura e humidade na firestore (com timestamp)
+// TODO Criar um gráfico com os dados de temperatura e humidade
+// https://github.com/PhilJay/MPAndroidChart
 
+// TODO melhoramentos:
+// Guardar o state da lampada numa base de dados local
+// Guardar os thresholds numa base de dados local
 public class MainActivity extends AppCompatActivity {
 
     private HomeFragment homeFragment;
