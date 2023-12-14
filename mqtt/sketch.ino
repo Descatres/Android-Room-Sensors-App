@@ -88,9 +88,15 @@ void callbackMQTT(char *topic, byte *payload, unsigned int length) {
 
   if (msg.equals("1")) {
     digitalWrite(LED_PIN, HIGH);
+    LCD.clear();
+    LCD.setCursor(0, 0);
+    LCD.print("Led on!");
   }
   if (msg.equals("0")) {
     digitalWrite(LED_PIN, LOW);
+    LCD.clear();
+    LCD.setCursor(0, 0);
+    LCD.print("Led off!");
   }
 
 }
