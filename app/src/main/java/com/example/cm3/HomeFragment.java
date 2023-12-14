@@ -11,6 +11,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -31,12 +33,8 @@ public class HomeFragment extends Fragment {
     private TextView realtimeHumidity;
     private ImageView imageLightBulb;
 
-    private MqttAndroidClient mqttAndroidClient;
-
     private final String ledTopic = "randomon_offtopic";
-    private final String humidityTopic = "randomhumiditytopic";
-    private final String temperatureTopic = "randomtemperaturetopic";
-
+    private MqttAndroidClient mqttAndroidClient;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -53,117 +51,95 @@ public class HomeFragment extends Fragment {
 
         // Find the "All" button and set a click listener
         Button btnOptionAll = view.findViewById(R.id.btnOption1);
-        btnOptionAll.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Update the content to show both temperature and humidity
-                updateContent(0); // Assuming 0 corresponds to "All"
-            }
+        btnOptionAll.setOnClickListener(v -> {
+            // Update the content to show both temperature and humidity
+            updateContent(0);
         });
 
         // Find the "Temperature" button and set a click listener
         Button btnOptionTemperature = view.findViewById(R.id.btnOption2);
-        btnOptionTemperature.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Update the content to show only temperature
-                updateContent(1); // Assuming 1 corresponds to "Temperature"
-            }
+        btnOptionTemperature.setOnClickListener(v -> {
+            // Update the content to show only temperature
+            updateContent(1);
         });
 
         // Find the "Humidity" button and set a click listener
         Button btnOptionHumidity = view.findViewById(R.id.btnOption3);
-        btnOptionHumidity.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Update the content to show only humidity
-                updateContent(2); // Assuming 2 corresponds to "Humidity"
-            }
+        btnOptionHumidity.setOnClickListener(v -> {
+            // Update the content to show only humidity
+            updateContent(2);
         });
+
+        String serverUri = "tcp://broker.hivemq.com:1883";
+        String clientId = "androidClient_" + UUID.randomUUID().toString();
+        mqttAndroidClient = new MqttAndroidClient(getContext(), serverUri, clientId);
+        MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
+        mqttConnectOptions.setAutomaticReconnect(true);
+
+        connectMQTT();
 
         // Find the "on" button and set a click listener
         Button btnTurnOn = view.findViewById(R.id.btnTurnOn);
-        btnTurnOn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Change the image to the "on" state
-                imageLightBulb.setImageResource(R.drawable.light_on);
-            }
+        btnTurnOn.setOnClickListener(v -> {
+            // Change the image to the "on" state
+            imageLightBulb.setImageResource(R.drawable.light_on);
+            // Publish the "on" message to the LED topic
+            publishToLedTopic("on");
         });
 
         // Find the "off" button and set a click listener
         Button btnTurnOff = view.findViewById(R.id.btnTurnOff);
-        btnTurnOff.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Change the image to the "off" state
-                imageLightBulb.setImageResource(R.drawable.light_off);
-            }
+        btnTurnOff.setOnClickListener(v -> {
+            // Change the image to the "off" state
+            imageLightBulb.setImageResource(R.drawable.light_off);
+            // Publish the "off" message to the LED topic
+            publishToLedTopic("off");
         });
 
-        // Initialize MQTT client
-        String serverUri = "tcp://broker.hivemq.com:1883";
-        String clientId = "androidClient_" + UUID.randomUUID().toString();
-        mqttAndroidClient = new MqttAndroidClient(requireContext(), serverUri, clientId);
-        MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
-        mqttConnectOptions.setAutomaticReconnect(true);
+        MqttViewModel mqttViewModel = new ViewModelProvider(requireActivity()).get(MqttViewModel.class);
 
-        Log.e("HomeFragment", "Connecting to " + serverUri + " with client ID " + clientId);
-        // Set callback for handling incoming messages
-        mqttAndroidClient.setCallback(new MqttCallback() {
-            @Override
-            public void connectionLost(Throwable cause) {
-                // Handle connection lost
-                Log.e("HomeFragment", "Connection lost");
-            }
-
-            @Override
-            public void messageArrived(String topic, org.eclipse.paho.client.mqttv3.MqttMessage message) {
-                Log.e("HomeFragment", "Message arrived" + message.toString());
-                // Handle incoming message
-                String payload = new String(message.getPayload());
-                // Update UI based on the received message
-                updateUI(topic, payload);
-            }
-
-            @Override
-            public void deliveryComplete(IMqttDeliveryToken token) {
-                Log.e("HomeFragment", "Delivery complete");
-                // Handle delivery complete
-            }
+        // update UI when new MQTT data is received
+        mqttViewModel.getTemperature().observe(getViewLifecycleOwner(), temperature -> {
+//            Log.e("HomeFragment", "Temperature data changed: " + temperature);
+            realtimeTemperature.setText(temperature);
         });
 
-        // Connect to the MQTT broker
-        try {
-            IMqttToken token = mqttAndroidClient.connect(mqttConnectOptions);
-            Log.e("HomeFragment", "Connecting to MQTT broker");
-            token.setActionCallback(new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken asyncActionToken) {
-                    Log.e("HomeFragment", "Connection success");
-                    // Subscribe to your MQTT topics here
-                    subscribeToTopics();
-                }
-
-                @Override
-                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    // Handle failure
-                    Log.e("HomeFragment", "Connection failure");
-                }
-            });
-        } catch (MqttException e) {
-            Log.e("HomeFragment", "Connection exception");
-            e.printStackTrace();
-        }
-
+        mqttViewModel.getHumidity().observe(getViewLifecycleOwner(), humidity -> {
+//            Log.e("HomeFragment", "Humidity data changed: " + humidity);
+            String humidityString = humidity + " %";
+            realtimeHumidity.setText(humidityString);
+        });
         return view;
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        // Unsubscribe from MQTT topics
-        unsubscribeFromTopics();
+    public void onResume() {
+        super.onResume();
+    }
+
+    private void connectMQTT() {
+        try {
+            MqttConnectOptions options = new MqttConnectOptions();
+            options.setAutomaticReconnect(true);
+
+            IMqttToken token = mqttAndroidClient.connect(options);
+            token.setActionCallback(new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    // Subscribe to MQTT
+                    // Log.e("MainActivity", "Connected to MQTT broker");
+//                    subscribeToTopics();
+                }
+
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    // Log.e("MainActivity", "Failed to connect to MQTT broker");
+//                    unsubscribeFromTopics();
+                }
+            });
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
     }
 
     private void updateContent(int selectedOption) {
@@ -193,96 +169,27 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private void subscribeToTopics() {
+    private void publishToLedTopic(String message) {
+
+        Log.e("HomeFragment", "Publishing message to LED topic: " + message);
         try {
-            int qos = 1;
-
-            IMqttToken subToken1 = mqttAndroidClient.subscribe(temperatureTopic, qos);
-            subToken1.setActionCallback(new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken asyncActionToken) {
-                    Log.e("HomeFragment", "Subscribed to temperature topic");
-                    // Handle successful subscription to temperature topic
+            // Check if the MQTT client is connected
+            if (mqttAndroidClient != null && mqttAndroidClient.isConnected()) {
+                // Publish the message to the LED topic
+                mqttAndroidClient.publish(ledTopic, message.getBytes(), 0, false);
+                // Check if it worked
+                if (mqttAndroidClient.isConnected()) {
+                    Log.e("HomeFragment", "Message published to LED topic");
+                } else {
+                    Log.e("HomeFragment", "MQTT client not connected");
                 }
-
-                @Override
-                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    Log.e("HomeFragment", "Failed to subscribe to temperature topic");
-                    // Handle failure
-                }
-            });
-
-            IMqttToken subToken2 = mqttAndroidClient.subscribe(humidityTopic, qos);
-            subToken2.setActionCallback(new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken asyncActionToken) {
-                    Log.e("HomeFragment", "Subscribed to humidity topic");
-                    // Handle successful subscription to humidity topic
-                }
-
-                @Override
-                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    Log.e("HomeFragment", "Failed to subscribe to humidity topic");
-                    // Handle failure
-                }
-            });
-        } catch (MqttSecurityException e) {
-            Log.e("HomeFragment", "security exception", e);
-            throw new RuntimeException(e);
+            } else {
+                Log.e("HomeFragment", "MQTT client not connected");
+            }
         } catch (MqttException e) {
-            Log.e("HomeFragment", "mqtt exception", e);
-            e.printStackTrace();
+            Log.e("HomeFragment", "Error publishing message to LED topic", e);
         }
     }
 
-    // Update UI based on the received MQTT message
-    private void updateUI(String topic, String payload) {
-        Log.e("HomeFragment", "Topic: " + topic + ", Payload: " + payload);
-        // Check the topic and update the corresponding UI element
-        if (temperatureTopic.equals(topic)) {
-            Log.e("HomeFragment", "Temperature: " + payload);
-            // Update temperature UI
-            realtimeTemperature.setText(payload);
-        } else if (humidityTopic.equals(topic)) {
-            Log.e("HomeFragment", "Humidity: " + payload);
-            // Update humidity UI
-            String humidityString = payload + "%";
-            realtimeHumidity.setText(humidityString);
-        }
-    }
 
-    private void unsubscribeFromTopics() {
-        try {
-
-            IMqttToken unsubToken1 = mqttAndroidClient.unsubscribe(temperatureTopic);
-            unsubToken1.setActionCallback(new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken asyncActionToken) {
-                    // Handle successful unsubscription from temperature topic
-                }
-
-                @Override
-                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    // Handle failure
-                }
-            });
-
-            IMqttToken unsubToken2 = mqttAndroidClient.unsubscribe(humidityTopic);
-            unsubToken2.setActionCallback(new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken asyncActionToken) {
-                    // Handle successful unsubscription from humidity topic
-                }
-
-                @Override
-                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    // Handle failure
-                }
-            });
-        } catch (MqttException e) {
-            Log.e("HomeFragment", "Connection exception", e);
-            e.printStackTrace();
-        }
-
-    }
 }
