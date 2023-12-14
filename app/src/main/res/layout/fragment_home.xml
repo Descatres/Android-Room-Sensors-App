@@ -37,6 +37,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/textTemperature"
                 android:layout_marginTop="12dp"
+                android:layout_marginBottom="16dp"
                 android:text="@string/connecting"
                 android:textSize="26sp"
                 android:layout_centerHorizontal="true" />
@@ -47,7 +48,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/realtimeTemperature"
-                android:layout_marginTop="16dp"
                 android:text="@string/humidity"
                 android:textSize="48sp"
                 android:layout_centerHorizontal="true" />
