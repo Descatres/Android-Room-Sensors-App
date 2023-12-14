@@ -150,7 +150,11 @@ public class AlertsFragment extends Fragment {
             //                                          int[] grantResults)
             return;
         }
-        notificationManager.notify(1, builder.build());
+        if (title.equals("Temperature Alert")) {
+            notificationManager.notify(1, builder.build());
+        } else if (title.equals("Humidity Alert")) {
+            notificationManager.notify(2, builder.build());
+        }
     }
 
     private void createNotificationChannel() {
