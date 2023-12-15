@@ -18,4 +18,12 @@ public class MqttViewModel extends ViewModel {
         return dataRepository.getHumidityData();
     }
 
+    public LiveData<Boolean> getLightState() {
+        return dataRepository.getLightState();
+    }
+
+    public void setLightState(boolean isLightOn) {
+        dataRepository.setLightState(isLightOn);
+    }
+
 }

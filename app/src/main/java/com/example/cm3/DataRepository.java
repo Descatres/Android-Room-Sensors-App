@@ -9,6 +9,8 @@ public class DataRepository {
     private static DataRepository instance;
     private final MutableLiveData<String> temperatureData = new MutableLiveData<>();
     private final MutableLiveData<String> humidityData = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> lightState = new MutableLiveData<>();
+
 
     private DataRepository() {
         //
@@ -29,6 +31,10 @@ public class DataRepository {
         return humidityData;
     }
 
+    public LiveData<Boolean> getLightState() {
+        return lightState;
+    }
+
     public void updateData(String topic, String payload) {
         // update LiveData based on the received MQTT data
         String temperatureTopic = "randomtemperaturetopic";
@@ -39,5 +45,9 @@ public class DataRepository {
         } else if (humidityTopic.equals(topic)) {
             humidityData.postValue(payload);
         }
+    }
+
+    public void setLightState(boolean isLightOn) {
+        lightState.setValue(isLightOn);
     }
 }

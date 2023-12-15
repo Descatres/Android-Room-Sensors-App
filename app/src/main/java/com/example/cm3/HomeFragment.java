@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -31,6 +32,8 @@ public class HomeFragment extends Fragment {
     private ImageView imageLightBulb;
     private String ledTopic = "randomonofftopic";
     private MqttAndroidClient mqttAndroidClient;
+    private MqttViewModel mqttViewModel;
+    private MutableLiveData<Boolean> isLightOn = new MutableLiveData<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -81,8 +84,10 @@ public class HomeFragment extends Fragment {
             imageLightBulb.setImageResource(R.drawable.light_on);
             // Publish the "on" message to the LED topic
             publishToLedTopic("1");
+            mqttViewModel.setLightState(true);
         });
 
+        mqttViewModel = new ViewModelProvider(requireActivity()).get(MqttViewModel.class);
         // Find the "off" button and set a click listener
         Button btnTurnOff = view.findViewById(R.id.btnTurnOff);
         btnTurnOff.setOnClickListener(v -> {
@@ -90,9 +95,18 @@ public class HomeFragment extends Fragment {
             imageLightBulb.setImageResource(R.drawable.light_off);
             // Publish the "off" message to the LED topic
             publishToLedTopic("0");
+            mqttViewModel.setLightState(false);
         });
 
-        MqttViewModel mqttViewModel = new ViewModelProvider(requireActivity()).get(MqttViewModel.class);
+        mqttViewModel.getLightState().observe(getViewLifecycleOwner(), isOn -> {
+            if (isOn != null) {
+                if (isOn) {
+                    imageLightBulb.setImageResource(R.drawable.light_on);
+                } else {
+                    imageLightBulb.setImageResource(R.drawable.light_off);
+                }
+            }
+        });
 
         // update UI when new MQTT data is received
         mqttViewModel.getTemperature().observe(getViewLifecycleOwner(), temperature -> {
@@ -112,6 +126,7 @@ public class HomeFragment extends Fragment {
             }
             realtimeHumidity.setText(humidityString);
         });
+
         return view;
     }
 
