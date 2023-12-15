@@ -25,6 +25,11 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 
+
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+
 // TODO Guardar os dados de temperatura e humidade na firestore (com timestamp)
 // TODO Criar um gráfico com os dados de temperatura e humidade
 // https://github.com/PhilJay/MPAndroidChart
@@ -43,10 +48,14 @@ public class MainActivity extends AppCompatActivity {
     private DataRepository dataRepository;
     private final Map<Integer, Fragment> fragmentMap = new HashMap<>();
 
+    private FirebaseFirestore db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        db = FirebaseFirestore.getInstance();
 
         hideSystemUI();
 
@@ -199,6 +208,14 @@ public class MainActivity extends AppCompatActivity {
         // Update DataRepository with received MQTT data
         // Log.e("MainActivity", "Received message on topic: " + topic + ", payload: " + payload);
         dataRepository.updateData(topic, payload);
+
+        if (topic.equals(temperatureTopic)) {
+            // Assuming payload is the temperature value
+            saveDataToFirestore(topic, payload);
+        } else if (topic.equals(humidityTopic)) {
+            // Assuming payload is the humidity value
+            saveDataToFirestore(topic, payload);
+        }
     }
 
     private void disconnectMQTT() {
@@ -254,5 +271,26 @@ public class MainActivity extends AppCompatActivity {
             insetsController.hide(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
 
         }
+    }
+
+    private void saveDataToFirestore(String topic, String payload) {
+        Map<String, Object> data = new HashMap<>();
+
+        if (topic.equals(temperatureTopic)) {
+            data.put("temperature", payload);
+            data.put("t_stamp", FieldValue.serverTimestamp());
+        } else if (topic.equals(humidityTopic)) {
+            data.put("humidity", payload);
+            data.put("t_stamp", FieldValue.serverTimestamp());
+        }
+        // Add data to the "sensorData" collection in Firestore
+        db.collection("data")
+                .add(data)
+                .addOnSuccessListener(documentReference -> {
+                    Log.d("Firestore", "DocumentSnapshot added with ID: " + documentReference.getId());
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("Firestore", "Error adding document", e);
+                });
     }
 }
