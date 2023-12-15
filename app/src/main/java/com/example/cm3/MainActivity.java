@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         fragmentMap.put(R.id.action_screen2, graphFragment);
         fragmentMap.put(R.id.action_screen3, alertsFragment);
 
-        // Set the default fragment
+        // default fragment
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, homeFragment)
                 .commit();
@@ -107,16 +107,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void messageArrived(String topic, org.eclipse.paho.client.mqttv3.MqttMessage message) {
                 // Log.e("MainActivity", "Message arrived" + message.toString());
-                // Handle incoming message
                 String payload = new String(message.getPayload());
-                // Update UI based on the received message
                 updateMqttData(topic, payload);
             }
 
             @Override
             public void deliveryComplete(IMqttDeliveryToken token) {
                 // Log.e("MainActivity", "Delivery complete");
-                // Handle delivery complete
             }
         });
 
@@ -132,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        // Unsubscribe from MQTT topics
+        // unsubscribe from MQTT topics
         unsubscribeFromTopics();
         disconnectMQTT();
     }
@@ -205,15 +202,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateMqttData(String topic, String payload) {
-        // Update DataRepository with received MQTT data
+        // update DataRepository with received MQTT data
         // Log.e("MainActivity", "Received message on topic: " + topic + ", payload: " + payload);
         dataRepository.updateData(topic, payload);
 
         if (topic.equals(temperatureTopic)) {
-            // Assuming payload is the temperature value
             saveDataToFirestore(topic, payload);
         } else if (topic.equals(humidityTopic)) {
-            // Assuming payload is the humidity value
             saveDataToFirestore(topic, payload);
         }
     }
@@ -283,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
             data.put("humidity", payload);
             data.put("t_stamp", FieldValue.serverTimestamp());
         }
-        // Add data to the "sensorData" collection in Firestore
+
         db.collection("data")
                 .add(data)
                 .addOnSuccessListener(documentReference -> {

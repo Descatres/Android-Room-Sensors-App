@@ -28,8 +28,7 @@ public class AlertsFragment extends Fragment {
     private EditText editTextHumidityMax;
 
     private static final String CHANNEL_ID = "MyChannel";
-    private static final int CHECK_INTERVAL = 5000; // Check every 5 seconds
-
+    private static final int CHECK_INTERVAL = 5000; // 5 seconds
     private float prevTemp = Float.NaN;
     private float prevHumidity = Float.NaN;
 
@@ -42,7 +41,6 @@ public class AlertsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_alerts, container, false);
-
 
         // Initialize ViewModel
         mqttViewModel = new ViewModelProvider(requireActivity()).get(MqttViewModel.class);
@@ -57,7 +55,6 @@ public class AlertsFragment extends Fragment {
 
         // Observe changes in ViewModel data
         mqttViewModel.getTemperature().observe(getViewLifecycleOwner(), temperature -> checkThresholds());
-
         mqttViewModel.getHumidity().observe(getViewLifecycleOwner(), humidity -> checkThresholds());
 
         return view;
@@ -74,7 +71,6 @@ public class AlertsFragment extends Fragment {
         float humidityMin = Float.parseFloat(editTextHumidityMin.getText().toString().isEmpty() ? "-1000" : editTextHumidityMin.getText().toString());
         float humidityMax = Float.parseFloat(editTextHumidityMax.getText().toString().isEmpty() ? "1000" : editTextHumidityMax.getText().toString());
 
-        // Validate min and max values
         if (validateMinMaxValues(tempMin, tempMax) || validateMinMaxValues(humidityMin, humidityMax)) {
             showMinMaxMessage(true);
             return;
@@ -83,18 +79,10 @@ public class AlertsFragment extends Fragment {
         }
 
 
-        // Check temperature thresholds
         checkThreshold("Temperature", currentTemp, tempMin, tempMax, prevTemp);
-        // Check humidity thresholds
         checkThreshold("Humidity", currentHumidity, humidityMin, humidityMax, prevHumidity);
 
-        // Schedule the next check after a delay
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                checkThresholds();
-            }
-        }, CHECK_INTERVAL);
+        handler.postDelayed(this::checkThresholds, CHECK_INTERVAL);
     }
 
     private void checkThreshold(String parameter, String currentValue, float min, float max, float prevValue) {
@@ -168,7 +156,7 @@ public class AlertsFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // Remove any remaining callbacks to avoid memory leaks
+        // remove any remaining callbacks to avoid memory leaks
         handler.removeCallbacksAndMessages(null);
     }
 }
