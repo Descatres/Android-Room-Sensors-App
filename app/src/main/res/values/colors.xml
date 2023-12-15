@@ -2,4 +2,6 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="colorTemperature">#FF5722</color>
+    <color name="colorHumidity">#00BCD4</color>
 </resources>

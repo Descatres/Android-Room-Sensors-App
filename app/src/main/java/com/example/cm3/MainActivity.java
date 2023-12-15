@@ -25,18 +25,9 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 
-
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-
-// TODO Guardar os dados de temperatura e humidade na firestore (com timestamp)
-// TODO Criar um gráfico com os dados de temperatura e humidade
-// https://github.com/PhilJay/MPAndroidChart
-
-// TODO melhoramentos:
-// Guardar o state da lampada numa base de dados local
-// Guardar os thresholds numa base de dados local
 public class MainActivity extends AppCompatActivity {
 
     private HomeFragment homeFragment;
@@ -47,15 +38,12 @@ public class MainActivity extends AppCompatActivity {
     private final String temperatureTopic = "randomtemperaturetopic";
     private DataRepository dataRepository;
     private final Map<Integer, Fragment> fragmentMap = new HashMap<>();
-
     private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        db = FirebaseFirestore.getInstance();
 
         hideSystemUI();
 
@@ -85,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
+        db = FirebaseFirestore.getInstance();
         dataRepository = DataRepository.getInstance();
         MqttViewModel mqttViewModel = new ViewModelProvider(this).get(MqttViewModel.class);
         mqttViewModel.setDataRepository(dataRepository);
@@ -206,10 +195,13 @@ public class MainActivity extends AppCompatActivity {
         // Log.e("MainActivity", "Received message on topic: " + topic + ", payload: " + payload);
         dataRepository.updateData(topic, payload);
 
+        // convert payload to double
+        double payloadDouble = Double.parseDouble(payload);
+
         if (topic.equals(temperatureTopic)) {
-            saveDataToFirestore(topic, payload);
+            saveDataToFirestore(topic, payloadDouble);
         } else if (topic.equals(humidityTopic)) {
-            saveDataToFirestore(topic, payload);
+            saveDataToFirestore(topic, payloadDouble);
         }
     }
 
@@ -268,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void saveDataToFirestore(String topic, String payload) {
+    private void saveDataToFirestore(String topic, Double payload) {
         Map<String, Object> data = new HashMap<>();
 
         if (topic.equals(temperatureTopic)) {
