@@ -198,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
         // convert payload to double
         double payloadDouble = Double.parseDouble(payload);
 
-        if (topic.equals(temperatureTopic)) {
+        if (topic.equals(temperatureTopic) && !payload.equals("Connection Lost")) {
             saveDataToFirestore(topic, payloadDouble);
         } else if (topic.equals(humidityTopic)) {
             saveDataToFirestore(topic, payloadDouble);

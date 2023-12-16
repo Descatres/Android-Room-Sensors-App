@@ -28,6 +28,11 @@ public class GraphFragment extends Fragment {
     private LineChart lineChart;
     private FirebaseFirestore firestore;
 
+    private ArrayList<Entry> temperatureEntries = new ArrayList<>();
+    private ArrayList<Entry> humidityEntries = new ArrayList<>();
+    private ArrayList<Long> temperatureTimeStamps = new ArrayList<>();
+    private ArrayList<Long> humidityTimeStamps = new ArrayList<>();
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_graph, container, false);
@@ -36,8 +41,6 @@ public class GraphFragment extends Fragment {
         setupLineChart();
 
         firestore = FirebaseFirestore.getInstance();
-
-        // Retrieve real-time data from Firestore
         retrieveFirestoreData();
 
         return view;
@@ -54,7 +57,7 @@ public class GraphFragment extends Fragment {
         Description description = new Description();
         description.setText("Temperature (ºC) and Humidity (%) Over Time (s)");
         lineChart.setDescription(description);
-        
+
 
         Legend legend = lineChart.getLegend();
         legend.setForm(Legend.LegendForm.LINE);
@@ -72,7 +75,7 @@ public class GraphFragment extends Fragment {
         lineChart.invalidate(); // Refresh the chart
     }
 
-    private void setData(ArrayList<Entry> temperatureEntries, ArrayList<Entry> humidityEntries) {
+    private void setData() {
         LineDataSet temperatureDataSet = new LineDataSet(temperatureEntries, "Temperature");
         temperatureDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
         temperatureDataSet.setColor(Color.RED);
@@ -87,19 +90,24 @@ public class GraphFragment extends Fragment {
 
         LineData lineData = new LineData(temperatureDataSet, humidityDataSet);
 
-        String[] timestamps = new String[temperatureEntries.size()];
-        for (int i = 0; i < temperatureEntries.size(); i++) {
-            timestamps[i] = String.valueOf(temperatureEntries.get(i).getX()); // Adjust this line based on your timestamp format
-        }
-
         XAxis xAxis = lineChart.getXAxis();
-        xAxis.setValueFormatter(new com.github.mikephil.charting.formatter.IndexAxisValueFormatter(timestamps));
-        xAxis.setLabelRotationAngle(45f); // Rotate the x-axis labels if needed
+        String[] temperatureTimeStampsArray = getFormattedTimeStamps(temperatureTimeStamps);
+        String[] humidityTimeStampsArray = getFormattedTimeStamps(humidityTimeStamps);
 
-        lineChart.setData(lineData);
+        xAxis.setValueFormatter(new com.github.mikephil.charting.formatter.IndexAxisValueFormatter(temperatureTimeStampsArray));
 
         lineChart.setData(lineData);
         lineChart.invalidate(); // Refresh the chart
+    }
+
+    private String[] getFormattedTimeStamps(ArrayList<Long> timeStamps) {
+        String[] formattedTimeStamps = new String[timeStamps.size()];
+        for (int i = 0; i < timeStamps.size(); i++) {
+            // Format the timestamp as needed
+            // For example, you can use SimpleDateFormat or convert to a readable format
+            formattedTimeStamps[i] = String.valueOf(timeStamps.get(i));
+        }
+        return formattedTimeStamps;
     }
 
     private void retrieveFirestoreData() {
@@ -110,29 +118,42 @@ public class GraphFragment extends Fragment {
                     }
 
                     if (value != null) {
-                        ArrayList<Entry> temperatureEntries = new ArrayList<>();
-                        ArrayList<Entry> humidityEntries = new ArrayList<>();
+                        temperatureEntries.clear();         // Clear previous temperature entries
+                        humidityEntries.clear();            // Clear previous humidity entries
+                        temperatureTimeStamps.clear();      // Clear previous temperature timestamps
+                        humidityTimeStamps.clear();         // Clear previous humidity timestamps
 
                         for (DocumentChange dc : value.getDocumentChanges()) {
                             QueryDocumentSnapshot document = dc.getDocument();
-                            if (document.contains("temperature") && document.contains("humidity")) {
+                            if (document.contains("temperature")) {
                                 Double temperature = document.getDouble("temperature");
-                                Double humidity = document.getDouble("humidity");
+                                Long timeStamp = document.getTimestamp("t_stamp").getSeconds() * 1000; // Convert to milliseconds
 
-                                // Check if temperature and humidity values are not null
-                                if (temperature != null && humidity != null) {
-                                    // Add the data points to the respective arrays
+                                // Check if temperature value is not null
+                                if (temperature != null) {
                                     temperatureEntries.add(new Entry(temperatureEntries.size() + 1, temperature.floatValue()));
-                                    humidityEntries.add(new Entry(humidityEntries.size() + 1, humidity.floatValue()));
+                                    temperatureTimeStamps.add(timeStamp);
                                 } else {
-                                    // Handle error
-                                    Log.e("GraphFragment", "Temperature or humidity is null");
+                                    // Handle the case where temperature is null
+                                    Log.e("GraphFragment", "Temperature is null");
+                                }
+                            }
+
+                            if (document.contains("humidity")) {
+                                Double humidity = document.getDouble("humidity");
+                                Long timeStamp = document.getTimestamp("t_stamp").getSeconds() * 1000; // Convert to milliseconds
+
+                                // Check if humidity value is not null
+                                if (humidity != null) {
+                                    humidityEntries.add(new Entry(humidityEntries.size() + 1, humidity.floatValue()));
+                                    humidityTimeStamps.add(timeStamp);
+                                } else {
+                                    // Handle the case where humidity is null
+                                    Log.e("GraphFragment", "Humidity is null");
                                 }
                             }
                         }
-                        // log 3 first entries
-//                        Log.d("GraphFragment", "Temperature: " + temperatureEntries.get(0).getY() + ", " + temperatureEntries.get(1).getY() + ", " + temperatureEntries.get(2).getY());
-                        setData(temperatureEntries, humidityEntries);
+                        setData();
                     }
                 });
     }

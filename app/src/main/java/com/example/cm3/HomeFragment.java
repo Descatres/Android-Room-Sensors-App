@@ -33,7 +33,6 @@ public class HomeFragment extends Fragment {
     private String ledTopic = "randomonofftopic";
     private MqttAndroidClient mqttAndroidClient;
     private MqttViewModel mqttViewModel;
-    private MutableLiveData<Boolean> isLightOn = new MutableLiveData<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
