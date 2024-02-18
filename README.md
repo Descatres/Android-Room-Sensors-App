@@ -43,5 +43,5 @@ ___No apk is available___
 
 
 #### Note
-- _This project was made for a university assignment and the grade was 2.85/3._
+- _This project was made for a university assignment and the grade was 2.85/3. Some things might be missing due to the orientations given and/or time restrictions._
 
