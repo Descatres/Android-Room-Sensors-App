@@ -20,7 +20,7 @@ ___No apk is available___
 - You can simulate the Arduino with the sensors and LED on the following [MQTT sketch](https://wokwi.com/projects/383302430573722625)
 - _You can find the code for the sketch [here](/mqtt/sketch.ino)_
 
-#### Images
+## Examples
 - LED on and temperature/humidity values of the sensors
   
 ![image](https://github.com/Descatres/Android-Room-Sensors-App/assets/73725403/bdcd2c78-485a-4c23-9092-962ce0128b23)
